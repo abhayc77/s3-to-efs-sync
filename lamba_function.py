@@ -8,16 +8,17 @@ from urllib.parse import unquote_plus
 
 def lambda_handler(event, context):
     print("In Lambda.. starting sync.. ")
-    EFS_PATH = "/mnt/s3sync/"
+    EFS_PATH = "/mnt/s3-sync2/"
     if event:
         print("Event found")
+        print(event)
         file_obj = event["Records"][0]
          # fetching bucket name from event
         bucketname = str(file_obj["s3"]["bucket"]["name"])
         # fetching file name from event
         filename = unquote_plus(str(file_obj["s3"]["object"]["key"]))
         print("Bucket name: ", bucketname, ", FileName: ",filename)
-        print("Before Sync: ",os.listdir("/mnt/s3sync"))
+        print("Before Sync: ",os.listdir(EFS_PATH))
         s3 = boto3.client("s3")
         print("S3 client initialized:")
         # retrieving object from S3
@@ -31,7 +32,7 @@ def lambda_handler(event, context):
         print("Writing to file: ", dstFileName)
         with open(dstFileName,"wb") as f:
             f.write(data_buf.getbuffer())
-        l = os.listdir("/mnt/s3sync")
+        l = os.listdir(EFS_PATH)
         print("After Sync: ",l)
     else:
         print("Event not found!!")
